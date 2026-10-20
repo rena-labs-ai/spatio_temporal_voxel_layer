@@ -197,6 +197,9 @@ void SpatioTemporalVoxelLayer::onInitialize(void)
     // depth camera model only: horizontal distance from the camera beyond
     // which the frustum clears nothing (0: no limit)
     declareParameter(source + "." + "max_horizontal_range", rclcpp::ParameterValue(0.0));
+    // depth camera model only: take the field of view from this camera_info
+    // instead of the fov angles; the source waits for it to clear
+    declareParameter(source + "." + "camera_info_topic", rclcpp::ParameterValue(""));
     declareParameter(source + "." + "vertical_fov_angle", rclcpp::ParameterValue(0.7));
     declareParameter(source + "." + "vertical_fov_padding", rclcpp::ParameterValue(0.0));
     declareParameter(source + "." + "horizontal_fov_angle", rclcpp::ParameterValue(1.04));
@@ -280,6 +283,27 @@ void SpatioTemporalVoxelLayer::onInitialize(void)
     node->get_parameter(
       name_ + "." + source + "." + "max_horizontal_range", max_horizontal_range);
     _observation_buffers.back()->SetMaxHorizontalRange(max_horizontal_range);
+
+    std::string camera_info_topic;
+    node->get_parameter(name_ + "." + source + "." + "camera_info_topic", camera_info_topic);
+    if (!camera_info_topic.empty()) {
+      auto buffer = _observation_buffers.back();
+      buffer->SetEnabled(false);
+      _camera_info_subscribers.push_back(
+        node->create_subscription<sensor_msgs::msg::CameraInfo>(
+          camera_info_topic, rclcpp::SensorDataQoS(),
+          [buffer](sensor_msgs::msg::CameraInfo::ConstSharedPtr info) {
+            // the widest view centred on the optical axis inside the image
+            const double fx = info->k[0], cx = info->k[2], fy = info->k[4], cy = info->k[5];
+            buffer->Lock();
+            buffer->SetHorizontalFovAngle(
+              2. * std::min(std::atan(cx / fx), std::atan((info->width - cx) / fx)));
+            buffer->SetVerticalFovAngle(
+              2. * std::min(std::atan(cy / fy), std::atan((info->height - cy) / fy)));
+            buffer->SetEnabled(true);
+            buffer->Unlock();
+          }, sub_opt));
+    }
 
     // Add buffer to marking observation buffers
     if (marking) {

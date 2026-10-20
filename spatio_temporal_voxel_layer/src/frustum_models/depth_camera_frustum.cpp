@@ -35,6 +35,7 @@
  * Author: Steve Macenski (steven.macenski@simberobotics.com)
  *********************************************************************/
 
+#include <cmath>
 #include <vector>
 #include "spatio_temporal_voxel_layer/frustum_models/depth_camera_frustum.hpp"
 
@@ -314,6 +315,14 @@ void DepthCameraFrustum::SetMaxHorizontalRange(const double & range)
 /*****************************************************************************/
 {
   _max_horizontal_range_sq = range * range;
+  // max_z is along the corner rays: stretch it so the far plane does not cut
+  // the range short straight ahead
+  const double reach = range / (std::cos(_vFOV / 2.) * std::cos(_hFOV / 2.));
+  if (range > 0. && reach > _max_d) {
+    _max_d = reach;
+    _plane_normals.clear();
+    ComputePlaneNormals();
+  }
 }
 
 /*****************************************************************************/
