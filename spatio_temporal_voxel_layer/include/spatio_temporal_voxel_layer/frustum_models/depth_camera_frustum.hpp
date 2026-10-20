@@ -69,13 +69,17 @@ public:
   virtual void SetPosition(const geometry_msgs::msg::Point & origin);
   virtual void SetOrientation(const geometry_msgs::msg::Quaternion & quat);
 
+  // limit the frustum to points within this horizontal distance of the
+  // camera (0: no limit), e.g. a camera that only trusts nearby floor
+  void SetMaxHorizontalRange(const double & range);
+
 private:
   // utils to find useful frustum metadata
   void ComputePlaneNormals(void);
   double Dot(const VectorWithPt3D &, const openvdb::Vec3d &) const;
   double Dot(const VectorWithPt3D &, const Eigen::Vector3d &) const;
 
-  double _vFOV, _hFOV, _min_d, _max_d;
+  double _vFOV, _hFOV, _min_d, _max_d, _max_horizontal_range_sq = 0.;
   std::vector<VectorWithPt3D> _plane_normals;
   Eigen::Vector3d _position;
   Eigen::Quaterniond _orientation;

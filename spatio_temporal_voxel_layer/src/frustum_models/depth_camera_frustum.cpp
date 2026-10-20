@@ -300,7 +300,20 @@ bool DepthCameraFrustum::IsInside(const openvdb::Vec3d & pt)
       return false;
     }
   }
+  if (_max_horizontal_range_sq > 0.) {
+    const double dx = pt[0] - _position[0], dy = pt[1] - _position[1];
+    if (dx * dx + dy * dy > _max_horizontal_range_sq) {
+      return false;
+    }
+  }
   return true;
+}
+
+/*****************************************************************************/
+void DepthCameraFrustum::SetMaxHorizontalRange(const double & range)
+/*****************************************************************************/
+{
+  _max_horizontal_range_sq = range * range;
 }
 
 /*****************************************************************************/

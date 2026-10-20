@@ -133,6 +133,7 @@ public:
   void SetMaxObstacleHeight(const double & max_obstacle_height);
   void SetMinZ(const double & min_z);
   void SetMaxZ(const double & max_z);
+  void SetMaxHorizontalRange(const double & range);
   void SetVerticalFovPadding(const double & vertical_fov_padding);
   void SetHorizontalFovAngle(const double & horizontal_fov_angle);
   void SetVerticalFovAngle(const double & vertical_fov_angle);
@@ -159,6 +160,7 @@ private:
   std::list<observation::MeasurementReading> _observation_list;
   double _min_obstacle_height, _max_obstacle_height, _obstacle_range, _tf_tolerance;
   double _min_z, _max_z, _vertical_fov, _vertical_fov_padding, _horizontal_fov;
+  double _max_horizontal_range = 0.;
   double _decay_acceleration, _voxel_size;
   bool _marking, _clearing;
   Filters _filter;

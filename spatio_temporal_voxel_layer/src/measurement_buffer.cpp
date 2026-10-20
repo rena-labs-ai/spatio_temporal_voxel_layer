@@ -123,6 +123,7 @@ void MeasurementBuffer::BufferROSCloud(
     _observation_list.front()._obstacle_range_in_m = _obstacle_range;
     _observation_list.front()._min_z_in_m = _min_z;
     _observation_list.front()._max_z_in_m = _max_z;
+    _observation_list.front()._max_horizontal_range_in_m = _max_horizontal_range;
     _observation_list.front()._vertical_fov_in_rad = _vertical_fov;
     _observation_list.front()._vertical_fov_padding_in_m =
       _vertical_fov_padding;
@@ -308,6 +309,13 @@ void MeasurementBuffer::SetMaxZ(const double & max_z)
 /*****************************************************************************/
 {
   _max_z = max_z;
+}
+
+/*****************************************************************************/
+void MeasurementBuffer::SetMaxHorizontalRange(const double & range)
+/*****************************************************************************/
+{
+  _max_horizontal_range = range;
 }
 
 /*****************************************************************************/

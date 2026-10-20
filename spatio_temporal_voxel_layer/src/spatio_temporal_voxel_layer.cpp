@@ -194,6 +194,9 @@ void SpatioTemporalVoxelLayer::onInitialize(void)
 
     declareParameter(source + "." + "min_z", rclcpp::ParameterValue(0.0));
     declareParameter(source + "." + "max_z", rclcpp::ParameterValue(10.0));
+    // depth camera model only: horizontal distance from the camera beyond
+    // which the frustum clears nothing (0: no limit)
+    declareParameter(source + "." + "max_horizontal_range", rclcpp::ParameterValue(0.0));
     declareParameter(source + "." + "vertical_fov_angle", rclcpp::ParameterValue(0.7));
     declareParameter(source + "." + "vertical_fov_padding", rclcpp::ParameterValue(0.0));
     declareParameter(source + "." + "horizontal_fov_angle", rclcpp::ParameterValue(1.04));
@@ -272,6 +275,11 @@ void SpatioTemporalVoxelLayer::onInitialize(void)
           decay_acceleration, marking, clearing, _voxel_size,
           filter, voxel_min_points, enabled, clear_after_reading, model_type,
           node->get_clock(), node->get_logger())));
+
+    double max_horizontal_range = 0.;
+    node->get_parameter(
+      name_ + "." + source + "." + "max_horizontal_range", max_horizontal_range);
+    _observation_buffers.back()->SetMaxHorizontalRange(max_horizontal_range);
 
     // Add buffer to marking observation buffers
     if (marking) {
